@@ -8,16 +8,16 @@ fetch ("http://localhost:3000/api/products/" + id)
 .then(response => {
   response.json().then(product => {
     let description = document.getElementById('description');
-    description.innerHTML = '<p id="description"> '+product.description+' </p>';     
+    description.innerHTML = product.description;     
       
     let name = document.getElementById('title');
-    name.innerHTML ='<h1 id="title">'+product.name+'</h1>';
+    name.innerHTML =product.name;
     
     let price = document.getElementById('price');
-    price.innerHTML= '<span id="price">'+product.price+'</span>';
+    price.innerHTML= product.price;
     
     let image = document.querySelector(".item__img");
-    image.innerHTML= '<div class="item__img"><img src="'+product.imageUrl+'" alt="Photographie dun canapé"></div>';
+    image.innerHTML= '<img src="'+product.imageUrl+'" alt="Photographie dun canapé">';
 
     for (let i=0; i<product.colors.length; i++) {
       let newColor = document.createElement("option");
@@ -31,12 +31,10 @@ fetch ("http://localhost:3000/api/products/" + id)
 
 // Récupération des choix de l'utilisateur //
 const addColor = document.getElementById('colors');
-addColor.value;
 
 const addQuantity = document.getElementById('quantity');
 addQuantity.addEventListener('click', function(e){
   e.preventDefault();
-  addQuantity.value;
 })
 
 //------------------- Au clic sur "Ajouter au panier" ---------------------//
@@ -62,7 +60,7 @@ addToCart.addEventListener('click', function(e){
   let productStorage = JSON.parse(localStorage.getItem("product"));
   
     const ChangeQuantity = () => {
-      let foundProductId = productStorage.find(p => p.productId == optionProduct.productId);
+      let foundProductId = productStorage.find(p => p.productId == optionProduct.productId && p.optionColor==optionProduct.optionColor);
       if(foundProductId != undefined ){
         let foundQuantity = parseInt(foundProductId.optionQuantity);
         let foundOptionQuantity = parseInt(optionProduct.optionQuantity);
@@ -84,4 +82,6 @@ addToCart.addEventListener('click', function(e){
     }
   }
 })
+
+
 //-----------------------------------------------------------//  
