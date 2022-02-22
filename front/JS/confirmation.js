@@ -3,4 +3,3 @@ let url = new URL(str);
 let order = url.searchParams.get("orderId");
 
 document.getElementById("orderId").innerHTML = order;
-

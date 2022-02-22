@@ -3,42 +3,37 @@ let productStorage = JSON.parse(localStorage.getItem("product"));
 
 if (productStorage != null){
 
-// Boucle pour chaque porduit du LocalStorage //
-const promises = productStorage.map( products => {
-    return fetch("http://localhost:3000/api/products/" + products.productId).then(response => {
+var cartIds = [];
+productStorage.forEach(product => {
+    cartIds.push(product.productId);
+})
+var uniqueIds = [...new Set(cartIds)];
+console.log(uniqueIds)
+
+const promises = uniqueIds.map( id => {
+    return fetch("http://localhost:3000/api/products/" + id).then(response => {
     return response.json();
     })})
-
+    
 Promise.all(promises).then(products => {
-    
-    let totalPrice = 0;
     let totalQuantity = 0;
+    let totalPrice = 0;
 
-  
-    Array.from(products).forEach(product => {
-        const found = productStorage.filter( p => p.productId == products._id);
-            
+    productStorage.forEach(product => {
+        var found = null;
+        products.forEach((p) => {
+            if(p._id == product.productId) {
+                found = p;
+            }
+        });
         console.log(found)
-    
-        let color = product.optionColor;
-        let quantity = found.optionQuantity;
-    
-    // Calcul quantité totale //
-        totalQuantity += parseInt(quantity);
-        let total = document.getElementById("totalQuantity");
-        total.innerHTML = totalQuantity;
 
-    // Calcul prix total //
-        totalPrice += parseInt(product.price) * parseInt(quantity);
-        let totalP = document.getElementById("totalPrice");
-        totalP.innerHTML = totalPrice;
-
-    // Création HTML <article> //
+        // Création HTML <article> //
         let elementArticle = document.createElement('article');
         elementArticle.classList.add("cart__item");
         document.getElementById('cart__items').appendChild(elementArticle);
         elementArticle.dataset.id = product._id;
-        elementArticle.dataset.color = color;
+        elementArticle.dataset.color = product.optionColor;
 
         let elementDivImg = document.createElement('div');
         elementDivImg.classList.add("cart__item__img");
@@ -46,7 +41,8 @@ Promise.all(promises).then(products => {
 
         let elementImg = document.createElement("img");
         elementDivImg.appendChild(elementImg);
-        elementImg.src = product.imageUrl;
+        elementImg.src = found.imageUrl;
+    
         elementImg.alt = "Photographie dun canapé";
     
         let elementDiv = document.createElement('div');
@@ -59,15 +55,15 @@ Promise.all(promises).then(products => {
 
         let elementTitle = document.createElement('h2');
         elementDivDescription.appendChild(elementTitle),
-        elementTitle.textContent = product.name;
+        elementTitle.textContent = found.name;
 
         let elementColor = document.createElement('p');
         elementDivDescription.appendChild(elementColor),
-        elementColor.textContent = color;
+        elementColor.textContent = product.optionColor;
 
         let elementPrice = document.createElement('p');
         elementDivDescription.appendChild(elementPrice),
-        elementPrice.textContent = product.price + " €";
+        elementPrice.textContent = found.price + " €";
         
         let elementSetting = document.createElement('div');
         elementSetting.classList.add("cart__item__content__settings");
@@ -83,7 +79,7 @@ Promise.all(promises).then(products => {
 
         let elementInput = document.createElement('input');
         elementInput.classList.add("itemQuantity");
-        elementInput.value = quantity;
+        elementInput.value = product.optionQuantity;
         elementInput.type = "number";
         elementQuantity.appendChild(elementInput);
 
@@ -95,6 +91,16 @@ Promise.all(promises).then(products => {
         elementDeleteItem.classList.add("deleteItem");
         elementDelete.appendChild(elementDeleteItem);
         elementDeleteItem.textContent = "Supprimer";
+        
+    // Calcul quantité totale //
+        totalQuantity += parseInt(product.optionQuantity);
+        let total = document.getElementById("totalQuantity");
+        total.innerHTML = totalQuantity;
+
+    // Calcul prix total //
+        totalPrice += parseInt(found.price) * parseInt(product.optionQuantity);
+        let totalP = document.getElementById("totalPrice");
+        totalP.innerHTML = totalPrice;
 
     // Bouton Supprimer //
         elementDelete.addEventListener('click', function(e){
@@ -102,7 +108,6 @@ Promise.all(promises).then(products => {
                 document.getElementById('cart__items').removeChild(elementArticle);
                 let dataId = elementArticle.dataset.id;
                 let dataColor = this.dataset.color;
-                console.log(color)
                 productStorage = productStorage.filter( product => product.productId != dataId || product.optionColor != color);
                 localStorage.setItem("product", JSON.stringify(productStorage));
 
@@ -137,7 +142,6 @@ Promise.all(promises).then(products => {
         })
     })
 })
-
 // -------------------- Formulaire --------------------------//
 const form = document.querySelector(".cart__order__form");
 
