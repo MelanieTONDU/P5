@@ -26,6 +26,6 @@ npm install
 ### Lancement de l'application :
 Se placer à l'aide du terminal dans le dossier "back" et taper la commande :
 ```
-nodemon server
+node server
 ```
 Le serveur devrait écouter sur le port 3000.
